@@ -1,12 +1,12 @@
 {
-  "name": "event-system",
+  "name": "events-system",
   "version": "0.0.1",
   "main": "src/index.ts",
   "repository": "https://github.com/NickSettler/event-system",
   "author": {
     "email": "moiseevnikita14@gmail.com",
     "name": "NickSettler",
-    "url": "https://github.com/NickSettler"
+    "url": "https://www.npmjs.com/~nicksettler"
   },
   "license": "MIT",
   "private": false,
