@@ -3,7 +3,7 @@ export enum EVENT_SYSTEM_EVENT_NAMES {
 }
 
 export interface EventSystemEvents {
-  [EVENT_SYSTEM_EVENT_NAMES.LOG_EVENT]: (message: string) => void;
+  [EVENT_SYSTEM_EVENT_NAMES.LOG_EVENT]: (message: string) => string | void;
 }
 
 export interface EventSystemSubscriber<K extends EVENT_SYSTEM_EVENT_NAMES> {
@@ -24,14 +24,18 @@ export default class EventSystem {
 
   public subscribe<K extends EVENT_SYSTEM_EVENT_NAMES>(
     event: K,
-    handler: (...args: Parameters<EventSystemEvents[K]>) => void
+    handler: (
+      ...args: Parameters<EventSystemEvents[K]>
+    ) => ReturnType<EventSystemEvents[K]>
   ) {
     this.subscribers.push({ event, handler });
   }
 
   public unsubscribe<K extends EVENT_SYSTEM_EVENT_NAMES>(
     event: K,
-    handler: (...args: Parameters<EventSystemEvents[K]>) => void
+    handler: (
+      ...args: Parameters<EventSystemEvents[K]>
+    ) => ReturnType<EventSystemEvents[K]>
   ) {
     this.subscribers = this.subscribers.filter(
       (subscriber: EventSystemSubscriber<EVENT_SYSTEM_EVENT_NAMES>) =>
