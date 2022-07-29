@@ -4,7 +4,13 @@ module.exports = {
     node: true,
     jest: true,
   },
-  extends: ['airbnb-base', 'prettier'],
+  extends: [
+    'airbnb-base',
+    'eslint:recommended',
+    'plugin:@typescript-eslint/eslint-recommended',
+    'plugin:@typescript-eslint/recommended',
+    'prettier',
+  ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 'latest',
@@ -12,6 +18,8 @@ module.exports = {
   },
   plugins: ['@typescript-eslint', 'prettier'],
   rules: {
+    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': ['error'],
     'prettier/prettier': 'error',
     'import/extensions': 0,
     'import/no-extraneous-dependencies': [
