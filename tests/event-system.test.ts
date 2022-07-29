@@ -1,5 +1,4 @@
-import EventSystem from '../src';
-import { EVENT_SYSTEM_EVENT_NAMES } from '../src/event-system';
+import EventSystem, { EVENT_SYSTEM_EVENT_NAMES } from '../src';
 
 const echoHandler = (message: string) => message;
 
@@ -49,5 +48,24 @@ describe('Event System subscription worker', () => {
     );
     expect(eventSystem['subscribers'][0].handler).toBe(echoHandler);
     /* eslint-enable dot-notation */
+  });
+});
+
+describe('Event System notification worker', () => {
+  test("Event System's notify() method works", () => {
+    const eventSystem = EventSystem.getInstance();
+
+    eventSystem.subscribe(EVENT_SYSTEM_EVENT_NAMES.LOG_EVENT, echoHandler);
+
+    const spy = jest.spyOn(eventSystem, 'notify');
+    // eslint-disable-next-line dot-notation
+    spy.mockImplementation(eventSystem['subscribers'][0].handler);
+
+    eventSystem.notify(EVENT_SYSTEM_EVENT_NAMES.LOG_EVENT, 'Hello World!');
+
+    expect(spy).toHaveBeenCalledWith(
+      EVENT_SYSTEM_EVENT_NAMES.LOG_EVENT,
+      'Hello World!'
+    );
   });
 });

@@ -42,4 +42,17 @@ export default class EventSystem {
         subscriber.event !== event || subscriber.handler !== handler
     );
   }
+
+  public notify<K extends EVENT_SYSTEM_EVENT_NAMES>(
+    event: K,
+    ...args: Parameters<EventSystemEvents[K]>
+  ): ReturnType<EventSystemEvents[K]> {
+    const handler = this.subscribers.find(
+      (subscriber: EventSystemSubscriber<EVENT_SYSTEM_EVENT_NAMES>) =>
+        subscriber.event === event
+    );
+
+    if (handler) return handler.handler.call(handler.handler, ...args);
+    return undefined;
+  }
 }
