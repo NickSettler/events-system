@@ -26,6 +26,7 @@ module.exports = {
       'error',
       { devDependencies: ['**/*.test.ts', '**/*.config.ts'] },
     ],
+    'consistent-return': 'off',
   },
   settings: {
     'import/resolver': {

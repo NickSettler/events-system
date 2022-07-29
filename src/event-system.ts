@@ -53,6 +53,5 @@ export default class EventSystem {
     );
 
     if (handler) return handler.handler.call(handler.handler, ...args);
-    return undefined;
   }
 }
