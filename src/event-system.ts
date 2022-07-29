@@ -21,4 +21,21 @@ export default class EventSystem {
 
     return EventSystem.instance;
   }
+
+  public subscribe<K extends EVENT_SYSTEM_EVENT_NAMES>(
+    event: K,
+    handler: (...args: Parameters<EventSystemEvents[K]>) => void
+  ) {
+    this.subscribers.push({ event, handler });
+  }
+
+  public unsubscribe<K extends EVENT_SYSTEM_EVENT_NAMES>(
+    event: K,
+    handler: (...args: Parameters<EventSystemEvents[K]>) => void
+  ) {
+    this.subscribers = this.subscribers.filter(
+      (subscriber: EventSystemSubscriber<EVENT_SYSTEM_EVENT_NAMES>) =>
+        subscriber.event !== event || subscriber.handler !== handler
+    );
+  }
 }
