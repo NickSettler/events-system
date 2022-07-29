@@ -46,12 +46,12 @@ export default class EventSystem {
   public notify<K extends EVENT_SYSTEM_EVENT_NAMES>(
     event: K,
     ...args: Parameters<EventSystemEvents[K]>
-  ): ReturnType<EventSystemEvents[K]> {
-    const handler = this.subscribers.find(
-      (subscriber: EventSystemSubscriber<EVENT_SYSTEM_EVENT_NAMES>) =>
-        subscriber.event === event
+  ): void {
+    this.subscribers.forEach(
+      (subscriber: EventSystemSubscriber<EVENT_SYSTEM_EVENT_NAMES>) => {
+        if (subscriber.event === event)
+          subscriber.handler.call(subscriber.handler, ...args);
+      }
     );
-
-    if (handler) return handler.handler.call(handler.handler, ...args);
   }
 }
