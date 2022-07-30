@@ -65,6 +65,8 @@ jobs:
       - name: Install dependencies
         run: yarn install --freeze-lockfile
       - name: Build and publish
-        run: yarn build & npm publish --access public
+        run: |
+          npm config set "//registry.npmjs.org/:_authToken" "${NPM_TOKEN}"
+          yarn build & npm publish --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
