@@ -1,6 +1,6 @@
 {
   "name": "events-system",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "src/index.ts",
   "repository": "https://github.com/NickSettler/event-system",
   "author": {
