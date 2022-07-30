@@ -52,5 +52,8 @@
       "src/**/*.spec.ts"
     ],
     "exec": "yarn lint & ts-node ./src/index.ts"
+  },
+  "dependencies": {
+    "mnemonist": "^0.39.2"
   }
 }

@@ -1,3 +1,6 @@
+import { CircularBuffer } from 'mnemonist';
+import EventSystemInitError from './errors/event-system-init-error';
+
 export enum EVENT_SYSTEM_EVENT_NAMES {
   LOG_EVENT = 'log_event',
 }
@@ -11,13 +14,50 @@ export interface EventSystemSubscriber<K extends EVENT_SYSTEM_EVENT_NAMES> {
   handler: (...args: Parameters<EventSystemEvents[K]>) => void;
 }
 
+export type EventSystemBufferDirection = 'FIFO' | 'LIFO';
+
+export type EventSystemOptions = {
+  bufferDirection?: EventSystemBufferDirection;
+  bufferSize?: number;
+};
+
+const DEFAULT_OPTIONS: Required<EventSystemOptions> = {
+  bufferDirection: 'FIFO',
+  bufferSize: 3,
+};
+
 export default class EventSystem {
   private static instance: typeof this.prototype;
 
   private subscribers: EventSystemSubscriber<EVENT_SYSTEM_EVENT_NAMES>[] = [];
 
+  private readonly buffer: Map<
+    EVENT_SYSTEM_EVENT_NAMES,
+    CircularBuffer<Parameters<EventSystemEvents[EVENT_SYSTEM_EVENT_NAMES]>>
+  > = new Map();
+
+  private readonly bufferDirection: EventSystemBufferDirection;
+
+  private constructor(options: EventSystemOptions) {
+    this.bufferDirection =
+      options.bufferDirection || DEFAULT_OPTIONS.bufferDirection;
+
+    const bufferSize = options.bufferSize || DEFAULT_OPTIONS.bufferSize;
+
+    Object.values(EVENT_SYSTEM_EVENT_NAMES).forEach(
+      (v: EVENT_SYSTEM_EVENT_NAMES) => {
+        this.buffer.set(v, new CircularBuffer(Array, bufferSize));
+      }
+    );
+  }
+
+  public static init(options?: EventSystemOptions) {
+    if (!EventSystem.instance) EventSystem.instance = new EventSystem(options);
+  }
+
   public static getInstance() {
-    if (!EventSystem.instance) EventSystem.instance = new EventSystem();
+    if (!EventSystem.instance)
+      throw new EventSystemInitError('Event System class not initialized');
 
     return EventSystem.instance;
   }
@@ -29,6 +69,10 @@ export default class EventSystem {
     ) => ReturnType<EventSystemEvents[K]>
   ) {
     this.subscribers.push({ event, handler });
+
+    this.buffer.get(event).forEach((args: Parameters<EventSystemEvents[K]>) => {
+      handler.call(handler, ...args);
+    });
   }
 
   public unsubscribe<K extends EVENT_SYSTEM_EVENT_NAMES>(
@@ -53,5 +97,9 @@ export default class EventSystem {
           subscriber.handler.call(subscriber.handler, ...args);
       }
     );
+
+    this.buffer
+      .get(event)
+      [this.bufferDirection === 'FIFO' ? 'push' : 'unshift'](args);
   }
 }
