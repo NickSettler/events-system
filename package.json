@@ -1,12 +1,16 @@
 {
   "name": "events-system",
-  "version": "0.0.3",
-  "main": "src/index.ts",
+  "version": "0.0.4",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": "https://github.com/NickSettler/event-system",
   "author": {
     "email": "moiseevnikita14@gmail.com",
     "name": "NickSettler",
     "url": "https://github.com/NickSettler"
+  },
+  "bugs": {
+    "url": "https://github.com/NickSettler/event-system/issues"
   },
   "license": "Apache-2.0",
   "private": false,
@@ -33,6 +37,12 @@
     "lint": "eslint src/**/*.ts",
     "test": "jest"
   },
+  "keywords": [
+    "typescript",
+    "events",
+    "event-system",
+    "event-managment"
+  ],
   "nodemonConfig": {
     "watch": [
       "src"
