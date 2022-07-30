@@ -15,17 +15,52 @@ Event System used for handling events between components
 Event System is a package used for handling different events between parts of code written in Typescript.
 
 <!-- TOC -->
-  * [Api](#api)
-    * [EventsSystem](#eventssystem)
+  * [EventsSystem](#eventssystem)
+    * [init(options: EventsSystemOptions)](#init--options--eventssystemoptions-)
+    * [getInstance()](#getinstance--)
+    * [subscribe(event, handler)](#subscribe--event-handler-)
+    * [unsubscribe(event, handler)](#unsubscribe--event-handler-)
+    * [notify(event, ...args)](#notify--event-args-)
 <!-- TOC -->
 
-## Api
+## EventsSystem
 
-### EventsSystem
+### init(options: EventsSystemOptions)
 
-| Method                        | Description                                                |
-|-------------------------------|------------------------------------------------------------|
-| `getInstance()`               | Get an instance of Event System                            |
-| `subscribe(event, handler)`   | Subscribe a `handler` to be fired when the `event` happens |
-| `unsubscribe(event, handler)` | Unsubscribe `handler` from the `event`                     |
-| `notify(event, ...args)`      | Fire an `event` with `args`                                |
+Initializes the Event System class.
+
+Parameters: 
+* options
+  * `bufferDirection` {"FIFO" | "LIFO"} - The direction of the events buffer. Defaults to "FIFO".
+  * `bufferSize` {number} - The size of the buffer.
+
+
+### getInstance()
+
+Returns the Event System instance.
+
+Returns: `EventSystem`
+
+### subscribe(event, handler)
+
+Subscribes handler to be called when the event is triggered.
+
+Parameters: 
+* event {EVENT_SYSTEM_EVENT_NAMES} The event name.
+* handler {Function} The handler function.
+
+### unsubscribe(event, handler)
+
+Unsubscribes the handler from the event.
+
+Parameters:
+* event {EVENT_SYSTEM_EVENT_NAMES} The event name.
+* handler {Function} The handler function.
+
+### notify(event, ...args)
+
+Triggers the event with the given arguments.
+
+Parameters:
+* event {EVENT_SYSTEM_EVENT_NAMES} The event name.
+* args {Parameters<EventSystemEvents[EVENT_SYSTEM_EVENT_NAMES]>} The arguments to pass to the handler.
