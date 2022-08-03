@@ -167,6 +167,8 @@ export default class EventSystem {
       (subscriber: EventSystemSubscriber<EVENT_SYSTEM_EVENT_NAMES>) =>
         subscriber.event !== event || subscriber.handler !== handler
     );
+
+    this.buffer.delete(event);
   }
 
   /**
