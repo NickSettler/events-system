@@ -65,14 +65,12 @@ const DEFAULT_OPTIONS: Required<EventSystemOptions> = {
 /**
  * Event System class. The class is used to manage events and trigger their handlers.
  */
-export default class EventSystem {
-  /**
-   * The Event System instance.
-   * @type {EventSystem}
-   * @private
-   */
-  private static instance: typeof this.prototype;
-
+export default class EventSystem<
+  E extends Record<
+    string,
+    (...args: Parameters<E[keyof E]>) => ReturnType<E[keyof E]>
+  >
+> {
   /**
    * The Event System subscribers.
    * @type {EventSystemSubscriber<EVENT_SYSTEM_EVENT_NAMES>[]}
@@ -109,29 +107,11 @@ export default class EventSystem {
    * @param {EventSystemOptions} options
    * @private
    */
-  private constructor(options: EventSystemOptions) {
+  constructor(options?: EventSystemOptions) {
     this.bufferDirection =
       options?.bufferDirection || DEFAULT_OPTIONS.bufferDirection;
 
     this.bufferSize = options?.bufferSize || DEFAULT_OPTIONS.bufferSize;
-  }
-
-  /**
-   * Initializes the Event System class.
-   * @param {EventSystemOptions} options
-   */
-  public static init(options?: EventSystemOptions) {
-    if (!EventSystem.instance) EventSystem.instance = new EventSystem(options);
-  }
-
-  /**
-   * Returns the Event System instance.
-   */
-  public static getInstance() {
-    if (!EventSystem.instance)
-      throw new EventSystemInitError('Event System class not initialized');
-
-    return EventSystem.instance;
   }
 
   /**
