@@ -45,7 +45,7 @@ jobs:
       - name: Test
         run: yarn test
 
-  publish:
+  publish_to_npm:
     name: Build and Publish to NPM
     runs-on: ubuntu-latest
     needs:
@@ -71,3 +71,34 @@ jobs:
           npm publish --access public
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish_to_ghcr:
+    name: Publish to GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    needs:
+      - lint
+      - test
+    if: github.event_name == 'release'
+    strategy:
+      matrix:
+        node-version: [ 16.x ]
+    steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
+        - name: Use Node.js ${{ matrix.node-version }}
+          uses: actions/setup-node@v3
+          with:
+            node-version: ${{ matrix.node-version }}
+            cache: 'yarn'
+            registry-url: https://npm.pkg.github.com/
+        - name: Install dependencies
+          run: yarn install --freeze-lockfile
+        - name: Publish to GitHub Release
+          run: |
+            yarn build
+            yarn publish --access public
+          env:
+            NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
