@@ -1,23 +1,4 @@
 import { CircularBuffer } from 'mnemonist';
-import EventSystemInitError from './errors/event-system-init-error';
-
-/**
- * Enum for the different event types names.
- * @enum {string}
- */
-export enum EVENT_SYSTEM_EVENT_NAMES {
-  LOG_EVENT = 'log_event',
-}
-
-/**
- * Event System Events interface. The interface contains events from the {@link EVENT_SYSTEM_EVENT_NAMES}
- * enum and the function prototype for the event listeners.
- *
- * @interface EventSystemEvents
- */
-export interface EventSystemEvents {
-  [EVENT_SYSTEM_EVENT_NAMES.LOG_EVENT]: (message: string) => string | void;
-}
 
 /**
  * Event System Subscriber interface. The interface contains event from {@link EVENT_SYSTEM_EVENT_NAMES}
@@ -25,9 +6,15 @@ export interface EventSystemEvents {
  *
  * @interface EventSystemSubscriber
  */
-export interface EventSystemSubscriber<K extends EVENT_SYSTEM_EVENT_NAMES> {
+export interface EventSystemSubscriber<
+  E extends Record<
+    string,
+    (...args: Parameters<E[keyof E]>) => ReturnType<E[keyof E]>
+  >,
+  K extends keyof E
+> {
   event: K;
-  handler: (...args: Parameters<EventSystemEvents[K]>) => void;
+  handler: (...args: Parameters<E[K]>) => void;
 }
 
 /**
@@ -73,19 +60,19 @@ export default class EventSystem<
 > {
   /**
    * The Event System subscribers.
-   * @type {EventSystemSubscriber<EVENT_SYSTEM_EVENT_NAMES>[]}
+   * @type {EventSystemSubscriber<E, keyof E>[]}
    * @private
    */
-  private subscribers: EventSystemSubscriber<EVENT_SYSTEM_EVENT_NAMES>[] = [];
+  private subscribers: EventSystemSubscriber<E, keyof E>[] = [];
 
   /**
    * The Event System buffer.
-   * @type {Map<EVENT_SYSTEM_EVENT_NAMES, CircularBuffer<Parameters<EventSystemEvents[EVENT_SYSTEM_EVENT_NAMES]>>>}
+   * @type {Map<keyof E, CircularBuffer<Parameters<E[keyof E]>>>}
    * @private
    */
   private readonly buffer: Map<
-    EVENT_SYSTEM_EVENT_NAMES,
-    CircularBuffer<Parameters<EventSystemEvents[EVENT_SYSTEM_EVENT_NAMES]>>
+    keyof E,
+    CircularBuffer<Parameters<E[keyof E]>>
   > = new Map();
 
   /**
@@ -116,54 +103,52 @@ export default class EventSystem<
 
   /**
    * Subscribes handler to be called when the event is triggered.
-   * @param {EVENT_SYSTEM_EVENT_NAMES} event The event name.
-   * @param {Function} handler The handler function.
+   * @param {K extends keyof E & string} event The event name.
+   * @param {(...args: Parameters<E[keyof E]>) => ReturnType<E[keyof E]>} handler The handler function.
    */
-  public subscribe<K extends EVENT_SYSTEM_EVENT_NAMES>(
+  public subscribe<K extends keyof E & string>(
     event: K,
-    handler: (
-      ...args: Parameters<EventSystemEvents[K]>
-    ) => ReturnType<EventSystemEvents[K]>
+    handler: (...args: Parameters<E[K]>) => ReturnType<E[K]>
   ) {
     this.subscribers.push({ event, handler });
 
-    this.buffer.get(event).forEach((args: Parameters<EventSystemEvents[K]>) => {
-      handler.call(handler, ...args);
-    });
+    if (this.buffer.has(event))
+      this.buffer.get(event).forEach((args: Parameters<E[K]>) => {
+        handler.call(handler, ...args);
+      });
   }
 
   /**
    * Unsubscribes the handler from the event.
-   * @param {EVENT_SYSTEM_EVENT_NAMES} event The event name.
-   * @param {Function} handler The handler function.
+   * @param {K extends keyof E & string} event The event name.
+   * @param {(...args: Parameters<E[keyof E]>) => ReturnType<E[keyof E]>} handler The handler function.
    */
-  public unsubscribe<K extends EVENT_SYSTEM_EVENT_NAMES>(
+  public unsubscribe<K extends keyof E & string>(
     event: K,
-    handler: (
-      ...args: Parameters<EventSystemEvents[K]>
-    ) => ReturnType<EventSystemEvents[K]>
+    handler: (...args: Parameters<E[K]>) => ReturnType<E[K]>
   ) {
     this.subscribers = this.subscribers.filter(
-      (subscriber: EventSystemSubscriber<EVENT_SYSTEM_EVENT_NAMES>) =>
+      (subscriber: EventSystemSubscriber<E, K>) =>
         subscriber.event !== event || subscriber.handler !== handler
     );
   }
 
   /**
    * Triggers the event with the given arguments.
-   * @param {EVENT_SYSTEM_EVENT_NAMES} event The event name.
-   * @param {Parameters<EventSystemEvents[EVENT_SYSTEM_EVENT_NAMES]>} args The arguments to pass to the handler.
+   * @param {K extends keyof E & string} event The event name.
+   * @param {Parameters<EventSystemEvents[keyof E]>} args The arguments to pass to the handler.
    */
-  public notify<K extends EVENT_SYSTEM_EVENT_NAMES>(
+  public notify<K extends keyof E & string>(
     event: K,
-    ...args: Parameters<EventSystemEvents[K]>
-  ): void {
-    this.subscribers.forEach(
-      (subscriber: EventSystemSubscriber<EVENT_SYSTEM_EVENT_NAMES>) => {
-        if (subscriber.event === event)
-          subscriber.handler.call(subscriber.handler, ...args);
-      }
-    );
+    ...args: Parameters<E[K]>
+  ) {
+    this.subscribers.forEach((subscriber: EventSystemSubscriber<E, K>) => {
+      if (subscriber.event === event)
+        subscriber.handler.call(subscriber.handler, ...args);
+    });
+
+    if (!this.buffer.has(event))
+      this.buffer.set(event, new CircularBuffer(Array, this.bufferSize));
 
     this.buffer
       .get(event)
