@@ -4,12 +4,14 @@ const echoHandler = (message: string) => message;
 
 describe('Event System initialization', () => {
   test('Event System getInstance() method works', () => {
+    EventSystem.init();
     expect(EventSystem.getInstance()).toBeInstanceOf(EventSystem);
   });
 });
 
-describe('Event System subscription worker', () => {
+describe('Event System subscription', () => {
   test("Event System's subscribe() method works", () => {
+    EventSystem.init();
     const eventSystem = EventSystem.getInstance();
 
     eventSystem.subscribe(EVENT_SYSTEM_EVENT_NAMES.LOG_EVENT, echoHandler);
@@ -24,6 +26,7 @@ describe('Event System subscription worker', () => {
   });
 
   test("Event System's unsubscribe() method works", () => {
+    EventSystem.init();
     const eventSystem = EventSystem.getInstance();
 
     eventSystem.subscribe(EVENT_SYSTEM_EVENT_NAMES.LOG_EVENT, echoHandler);
@@ -35,6 +38,7 @@ describe('Event System subscription worker', () => {
   });
 
   test("Event System's resubscribe logic works", () => {
+    EventSystem.init();
     const eventSystem = EventSystem.getInstance();
 
     eventSystem.subscribe(EVENT_SYSTEM_EVENT_NAMES.LOG_EVENT, echoHandler);
@@ -51,8 +55,9 @@ describe('Event System subscription worker', () => {
   });
 });
 
-describe('Event System notification worker', () => {
+describe('Event System notification', () => {
   test("Event System's notify() method works", () => {
+    EventSystem.init();
     const eventSystem = EventSystem.getInstance();
 
     eventSystem.subscribe(EVENT_SYSTEM_EVENT_NAMES.LOG_EVENT, echoHandler);
