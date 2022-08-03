@@ -98,21 +98,22 @@ export default class EventSystem {
   private readonly bufferDirection: EventSystemBufferDirection;
 
   /**
+   * The Event System buffer size.
+   * @type {number}
+   * @private
+   */
+  private readonly bufferSize: number;
+
+  /**
    * Event System constructor.
    * @param {EventSystemOptions} options
    * @private
    */
   private constructor(options: EventSystemOptions) {
     this.bufferDirection =
-      options.bufferDirection || DEFAULT_OPTIONS.bufferDirection;
+      options?.bufferDirection || DEFAULT_OPTIONS.bufferDirection;
 
-    const bufferSize = options.bufferSize || DEFAULT_OPTIONS.bufferSize;
-
-    Object.values(EVENT_SYSTEM_EVENT_NAMES).forEach(
-      (v: EVENT_SYSTEM_EVENT_NAMES) => {
-        this.buffer.set(v, new CircularBuffer(Array, bufferSize));
-      }
-    );
+    this.bufferSize = options?.bufferSize || DEFAULT_OPTIONS.bufferSize;
   }
 
   /**
