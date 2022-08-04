@@ -91,6 +91,7 @@ jobs:
         - name: Use Node.js ${{ matrix.node-version }}
           uses: actions/setup-node@v3
           with:
+            always-auth: true
             node-version: ${{ matrix.node-version }}
             cache: 'yarn'
             registry-url: https://npm.pkg.github.com/
@@ -100,7 +101,7 @@ jobs:
           run: |
             npm config set "//npm.pkg.github.com/:_authToken" "${NPM_TOKEN}"
             yarn build
-            yarn publish --access public
+            npm publish
           env:
             NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
